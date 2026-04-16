@@ -1,0 +1,21 @@
+service: lambda-orchestrator
+
+provider:
+  name: aws
+  runtime: nodejs22.x # Requisito del PDF
+  region: us-east-1
+  environment:
+    CUSTOMERS_API_URL: http://127.0.0.1:3001/customers
+    ORDERS_API_URL: http://127.0.0.1:3002/orders
+    SERVICE_TOKEN: internal-token-123
+
+functions:
+  createAndConfirm:
+    handler: handler.createAndConfirm
+    events:
+      - http:
+          path: orchestrator/create-and-confirm-order
+          method: post
+
+plugins:
+  - serverless-offline

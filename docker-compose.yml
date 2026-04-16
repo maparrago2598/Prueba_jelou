@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  mysql-db:
+    image: mysql:8.0
+    container_name: mysql_db
+    environment:
+      MYSQL_ROOT_PASSWORD: root1234
+      MYSQL_DATABASE: b2b_orders
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d
+
+  customers-api:
+    build: ./customers-api
+    ports:
+      - "3001:3001"
+    environment:
+      - DB_HOST=mysql-db
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=root1234
+      - DB_NAME=b2b_orders
+    depends_on:
+      - mysql-db
+
+  orders-api:
+    build: ./orders-api
+    ports:
+      - "3002:3002"
+    environment:
+      - DB_HOST=mysql-db
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=root1234
+      - DB_NAME=b2b_orders
+      - CUSTOMERS_API_URL=http://customers-api:3001/customers
+    depends_on:
+      - mysql-db
+      - customers-api
